@@ -4,12 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/Emyrk/gohue/hueclient"
 	"io"
 	"net/http"
-	"net/http/httputil"
 )
 
 type Client struct {
@@ -19,17 +17,8 @@ type Client struct {
 }
 
 func NewClient(username string) (*Client, error) {
-	bridges, err := Discover(context.Background())
-	if err != nil {
-		return nil, err
-	}
-
-	if len(bridges) == 0 {
-		return nil, errors.New("no bridges found")
-	}
-
 	return &Client{
-		Bridges:  bridges,
+		//Bridges:  bridges,
 		Client:   hueclient.DefaultClient(),
 		username: username,
 	}, nil
@@ -118,21 +107,8 @@ func (c *Client) request(ctx context.Context, method string, route string, body 
 		return err
 	}
 
-	if getDebugValue(ctx) {
-		bodyCpy := bytes.NewBuffer(nil)
-		_, err = io.Copy(bodyCpy, resp.Body)
-		if err != nil {
-			return err
-		}
-		resp.Body.Close()
-		resp.Body = io.NopCloser(bodyCpy)
-
-		dump, err := httputil.DumpResponse(resp, true)
-		if err != nil {
-			return err
-		}
-		fmt.Println(string(dump))
-
+	if err := debugHttpResponse(ctx, resp); err != nil {
+		return fmt.Errorf("debug request: %w", err)
 	}
 
 	defer resp.Body.Close()
@@ -142,5 +118,5 @@ func (c *Client) request(ctx context.Context, method string, route string, body 
 }
 
 func (c *Client) requestRoute(route string) string {
-	return "https://" + c.Bridges[0].InternalIPAddress + route
+	return "https://" + c.Bridges[0].Addr.String() + route
 }

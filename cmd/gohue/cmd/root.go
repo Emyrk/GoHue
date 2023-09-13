@@ -26,6 +26,7 @@ to quickly create a Cobra application.`,
 
 	cmd.AddCommand(authenticate())
 	cmd.AddCommand(devices())
+	cmd.AddCommand(discover())
 
 	return cmd
 }

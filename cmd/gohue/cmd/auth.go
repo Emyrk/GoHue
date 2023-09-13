@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Emyrk/gohue"
 	"github.com/spf13/cobra"
+	"log/slog"
 )
 
 func authenticate() *cobra.Command {
@@ -12,7 +13,7 @@ func authenticate() *cobra.Command {
 		Short: "Authenticate with the Hue Bridge",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-			ctx = gohue.WithDebugging(ctx)
+			ctx = gohue.WithDebugging(ctx, slog.New(slog.NewTextHandler(cmd.OutOrStdout(), nil)))
 
 			cli, err := gohue.NewClient("l57Ry9PcABEOwWKKvR-UnRCG2CgWejeaNMJxYuwV")
 			if err != nil {

@@ -1,18 +1,21 @@
 package gohue
 
-import "context"
+import (
+	"context"
+	"log/slog"
+)
 
 type debugKey struct{}
 
-func WithDebugging(ctx context.Context) context.Context {
-	return context.WithValue(ctx, debugKey{}, true)
+func WithDebugging(ctx context.Context, log *slog.Logger) context.Context {
+	return context.WithValue(ctx, debugKey{}, log)
 }
 
-func getDebugValue(ctx context.Context) bool {
+func getDebugValue(ctx context.Context) *slog.Logger {
 	val := ctx.Value(debugKey{})
 	if val == nil {
-		return false
+		return nil
 	}
 
-	return val.(bool)
+	return val.(*slog.Logger)
 }
